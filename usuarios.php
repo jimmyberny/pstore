@@ -85,6 +85,10 @@
                                 <button id="boton-guardar" type="button" class="btn btn-default">
                                     <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
                                 </button>
+                                <button id="boton-guardar" type="reset" class="btn" >
+                                    <span class="glyphicon glyphicon-floppy-disk"></span> Limpiar
+                                </button>
+                                <input id="id" name="id" type="hidden" />
                             </div>
                         </div>
                     </form>
@@ -141,6 +145,7 @@
                     {accion: 'item', id: idUsuario},
                     function(json){
                         if ( json.resultado ) {
+                            $('#id').attr('value', json.item.id);
                             $('#nombre').attr('value', json.item.nombre);
                             $('#paterno').attr('value', json.item.paterno);
                             $('#materno').attr('value', json.item.materno);

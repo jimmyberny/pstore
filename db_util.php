@@ -31,7 +31,7 @@ function doQueryById( $table, $data )
 	{
 		$pss = $con->prepare( getSelectByIds( $table ) );
 
-		$bindings = getBindings( $table['fields'], $table['form'] );
+		$bindings = getFNames( $table['fields'], $table['form'] );
 		foreach ( $table['ids'] as $fn ) 
 		{
 			$pss->bindParam( ':' . $bindings[$fn], $data[$bindings[$fn]] );
@@ -88,10 +88,42 @@ function doInsert( $table, $data )
 	# Ejecutar la query
 	try 
 	{
-		$ok = $psi->execute();
-		$ok = $ok and ( $psi->rowCount() != 0 );
+		$ok = $psi->execute(); # Query ejecutada 
+		$ok = $ok and ( $psi->rowCount() != 0 ); # Si hubo filas afectadas
 		$res = array( 'resultado' => $ok );
 	} 
+	catch ( PDOException $ex )
+	{
+		$res = array( 'resultado' => false, 'error' => $ex->getMessage() );
+	}
+	return $res;
+}
+
+function doUpdate( $table, $data ) 
+{
+	global $con;
+
+	# Obtener los nombres de los campos
+	$names = getFNames( $table['fields'], $table['form'] );
+
+
+	$uq = getUpdate( $table ); # Update query
+	error_log( 'Update: ' . $uq );
+
+	# Preparar y vincular la query
+	$psu = $con->prepare( $uq );
+	foreach ( $names as $fn ) 
+	{
+		$psu->bindParam( ':' . $fn, $data[$fn] );
+	}
+
+	# Ejecutar la query
+	try 
+	{
+		$ok = $psu->execute();
+		$ok = $ok and ( $psu->rowCount() != 0 ); # Si hubo filas afectadas
+		$res = array('resultado' => $ok );
+	}
 	catch ( PDOException $ex )
 	{
 		$res = array( 'resultado' => false, 'error' => $ex->getMessage() );

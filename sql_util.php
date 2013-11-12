@@ -1,7 +1,7 @@
 <?php 
 #Funciones util para generar el sql
 
-function getBindings( $fields, $bindings ) 
+function getFNames( $fields, $bindings ) 
 {
     $res = array();
     foreach ( $fields as $fn ) 
@@ -83,5 +83,43 @@ function getInsert( $table )
     }
     $qm = implode( ',' , $qm );
     return 'insert into ' . $table['name'] . ' (' . $fs . ') values (' . $qm . ')';
+}
+
+function getUpdate( $table )
+{
+    # Construyendo los sets: campo = :campo
+    $us = '';
+    for ( $i = 0, $size = count ( $table['fields'] ), $last = $size - 1 ; $i < $size; $i++ ) 
+    {
+        if ( array_key_exists( $i, $table['ids'] ) )
+        {
+            # No hacer nada   
+        }
+        else 
+        {
+            $fn = $table['fields'][$i];
+            $us .= $fn . ' = '; # Concatenar el nombre del campo
+            if ( array_key_exists( $fn, $table['form'] ) )
+            {
+                $fn = $table['form'][$fn];
+            } 
+            $us .= ':' . $fn . ( $i == $last ? '' : ', ') ;
+        }
+    }
+    # Construir los where campo = :campo
+    $where = ' where ';
+    for ( $i = 0, $size = count( $table['ids'] ), $last = $size - 1; $i < $size; $i++ )
+    {
+        $pid = $table['ids'][$i]; # Obtener posicion del campo que es Identificador
+        $fw = $table['fields'][$pid]; # Obtener el nombre del campo Identificador
+        $where .= $fw . ' = ';
+        if ( array_key_exists( $fw, $table['form'] ) )
+        {
+            $fw = $table['form'][$fw];
+        }
+        # Agregar el comodin y concatenar un and si sigue otro parametro
+        $where .= ':' . $fw . ( $i == $last ? '' : ' and '); 
+    }
+    return 'update ' . $table['name'] . ' set ' . $us . $where;
 }
 ?>

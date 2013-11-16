@@ -38,10 +38,20 @@ function guardarUsuario( $datos )
 	global $tbl_usuario;
 	if ( isset( $datos['id']) and strlen($datos['id']) != 0 )
 	{
-		error_log('Must update object');
+		# error_log('Must update object');
 		return doUpdate( $tbl_usuario, $datos );
 	}
 	return doInsert( $tbl_usuario, $datos );
+}
+
+function borrarUsuario( $datos )
+{
+	global $tbl_usuario;
+	if ( isset( $datos['id'] ) and strlen( $datos['id'] ) != 0 )
+	{
+		return doDelete( $tbl_usuario, $datos );
+	}
+	return array('resultado' => false, 'error' => 'Identificador para usuario incorrecto.');
 }
 
 function getUsuario( $idUsuario ) 

@@ -25,6 +25,11 @@ function isGuardar()
     return compareAccion( 'guardar' );
 }
 
+function isBorrar()
+{
+	return compareAccion( 'eliminar' );
+}
+
 function isItem()
 {
 	return compareAccion( 'item' );

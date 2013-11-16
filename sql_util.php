@@ -122,4 +122,26 @@ function getUpdate( $table )
     }
     return 'update ' . $table['name'] . ' set ' . $us . $where;
 }
+
+function getDelete( $table ) {
+    # Lanzar una exception si la tabla no cuenta con identificadores.
+    # De otro modo se estaría eliminando todo el contenido de la tabla.
+    $ds = '';
+    for ( $i = 0, $size = count( $table['ids'] ), $last = $size - 1; $i < $size; $i++ ) 
+    {
+        # El nombre al que apunta el identificador
+        $fn = $table['fields'][ $table['ids'][$i] ]; 
+
+        if ( array_key_exists( $fn, $table['form'] ) )
+        { 
+            $nn = $table['form'][$fn]; # El campo se llama de otro modo en el formulario
+        }
+        else 
+        {
+            $nn = $fn; # El campo se llama igual
+        }
+        $ds .= $fn . ' = :' . $nn . ( $i == $last ? '' : ' and ' ); 
+    }
+    return 'delete from ' . $table['name'] . ' where ' . $ds;
+}
 ?>

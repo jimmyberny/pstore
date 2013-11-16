@@ -131,6 +131,35 @@ function doUpdate( $table, $data )
 	return $res;
 }
 
+function doDelete( $table, $data )
+{
+	global $con; # La conexion a bd
+	$name = getFNames( $table['fields'], $table['form'] );
+
+	$dq = getDelete( $table );
+	error_log('Query delete: ' . $dq);
+	$psd = $con->prepare( $dq );
+	# Encontrar las claves del arreglo para enlazarlos del $data a la query
+	foreach ( $table['ids'] as $pos ) 
+	{
+		$field = $table['fields'][$pos];
+		$form = array_key_exists( $field, $table['form'] ) ? $table['form'][$field] : $field;
+		$psd->bindParam( ':' . $field, $data[$form] );
+	}
+
+	try 
+	{
+		$ok = $psd->execute();
+		$ok = $ok and ( $psd->rowCount() != 0 );
+		$res = array('resultado' => $ok);
+	}
+	catch ( PDOException $ex )
+	{
+		$res = array( 'resultado' => false, 'error' => $ex->getMessage() );
+	}
+	return $res;
+}
+
 function sayHi( $var ) 
 {
     echo 'Hola ' . $var;

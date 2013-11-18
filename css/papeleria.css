@@ -1,0 +1,14 @@
+body {
+	padding-top: 50px;
+	padding-bottom: 50px;
+}
+
+.lista-items {
+	height: 400px;
+	overflow: auto;
+}
+
+.formulario {
+	max-height: 320px;
+	overflow: auto;
+}

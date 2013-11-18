@@ -20,8 +20,17 @@ catch ( PDOException $ex )
 function doQuery( $sentence ) 
 {
     global $con;
-    $result_set = $con->query( $sentence );
-    return $result_set->fetchAll( PDO::FETCH_ASSOC );
+    error_log('Trying query: ' . $sentence );
+    try
+    {
+		$result_set = $con->query( $sentence );
+		return $result_set->fetchAll( PDO::FETCH_ASSOC );
+    }
+    catch ( PDOException $ex )
+    {
+    	error_log( $ex->getMessage() );
+    	return array();
+    }
 }
 
 function doQueryById( $table, $data )

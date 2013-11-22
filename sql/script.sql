@@ -30,7 +30,7 @@ insert into usuario (id, nombre, paterno, materno, id_rol, usuario, contra)
 
 create table categoria (
     id varchar(40) not null,
-    nombre varchar(60) not null unique,
+    nombre varchar(60) not null,
     constraint pk_categoria primary key(id)
 ) engine = InnoDB;
 
@@ -45,11 +45,13 @@ create table producto (
     venta double not null,
     compra double not null,
     iva double not null, -- guardar el decimal para ahorra calculo
-    constraint pk_producto primary key(id)
+    constraint pk_producto primary key(id),
+    constraint fk_p_c_categoria foreign key(id_categoria) references categoria(id)
 ) engine = InnoDB;
 
 create table cliente (
     id varchar(40) not null,
+    rfc varchar(20) null,
     nombre varchar(40) not null,
     paterno varchar(40) not null,
     materno varchar(40) null,
@@ -69,6 +71,7 @@ create table caja(
     id varchar(40) not null,
     inicio datetime not null,
     fin datetime null,
+    constraint pk_caja primary key(id)
 ) engine = InnoDB;
 
 create table ticket(
@@ -112,5 +115,5 @@ create table linea_orden (
     cantidad double not null,
     constraint pk_linea_orden primary key(id),
     constraint fk_lo_o_orden foreign key(id_orden) references orden(id),
+    constraint fk_lo_p_producto foreign key(id_producto) references producto(id)
 ) engine = InnoDB;
-

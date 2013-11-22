@@ -61,7 +61,7 @@ function doQueryById( $table, $data )
 		$res = array('resultado' => false, 
 			'error' => 'Error de base de datos: ' . $ex->getMessage());
 	}
-	error_log( 'Resultado: '. $res );
+	//error_log( 'Resultado: '. $res );
 	return $res;
 }
 

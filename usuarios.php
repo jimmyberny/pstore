@@ -146,25 +146,7 @@
             </div>
             
             
-            <!-- Dialogo de borrar -->
-            <div id="modal-eliminar" class="modal fade">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            Mensaje del editor
-                        </div>
-                        <div class="modal-body">
-                            El puerco!
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
-                            <button id="boton-eliminar" type="button" class="btn btn-primary">Eliminar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+           
             <!-- Tabla de usuarios
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -208,7 +190,7 @@
                 }
 
                 if (gblAccion == 'eliminar') {
-                    $.post('usuario_controller.php',
+                    $.post('usuario_ctrl.php',
                         {accion: 'eliminar', id: selId},
                         function(json) {
                             if (json.resultado) {
@@ -222,7 +204,7 @@
                     var params = $('#frm-usuario').serializeArray();
                     params.push( {name: 'accion', value: gblAccion} );
 
-                    $.post('usuario_controller.php', 
+                    $.post('usuario_ctrl.php', 
                         params,
                         function(json) {
                             if ( json.resultado ) {
@@ -238,7 +220,7 @@
             }
 
             function refrescarUsuarios() {
-                $.getJSON('usuario_controller.php', 
+                $.getJSON('usuario_ctrl.php', 
                     {accion: 'lista'}, 
                     function(json){
                         // var tmpl = $('#usuarios-tmpl').html();
@@ -251,7 +233,7 @@
             }
 
             function mostrarUsuario(idUsuario) {
-                $.getJSON('usuario_controller.php', 
+                $.getJSON('usuario_ctrl.php', 
                     {accion: 'item', id: idUsuario},
                     function(json){
                         if ( json.resultado ) {
@@ -314,7 +296,7 @@
             function eliminarUsuario(idUsuario) {
                 // Agregarle al botón la funcionalidad de eliminar
                 $('#boton-eliminar').one('click', function(){
-                    $.post('usuario_controller.php',
+                    $.post('usuario_ctrl.php',
                         {accion: 'eliminar', id: idUsuario},
                         function(json) {
                             if (json.resultado) {

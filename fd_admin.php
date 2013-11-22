@@ -20,6 +20,13 @@ $t_rol = array(
 		'ids' => array(0),
 		'order' => array(1)
 	);
+
+$tbl_categoria = array('name' =>'categoria' ,
+		'fields' => array('id', 'nombre'),
+		'form' => array(),
+		'ids' => array(0),
+		'order' => array(1)	
+	 );
 # sayHi( 'pollo' );
 
 # echo "Call method";
@@ -105,5 +112,44 @@ function getRol ( $id )
 {
 	global $t_rol;
 	return doQueryById( $t_rol, array('id' => $id ) );
+}
+
+function listarCategoria(){
+	global $tbl_categoria;
+	try {
+		$rs=doQuery(getSelect($tbl_categoria));
+		return array('categoria'=>$rs );
+	} catch (PDOException $ex) {
+		show_app_error($ex)	;
+		die();
+	}
+}
+
+function guardarCategoria($datos)
+{
+	global $tbl_categoria;
+	if(isset($datos['id']) and strlen($datos['id']!=0))
+	{
+		error_log('Mustt update object');
+		return doUpdate($tbl_categoria,$datos);
+	}
+	error_log('Isert Object');
+	return doInsert($tbl_categoria,$datos);
+}
+
+function borrarCategoria($datos)
+{
+	global $tbl_categoria;
+	if( isset($datos['id']) and strlen($datos['id']) != 0 )
+	{
+		return doDelete($tbl_categoria,$datos);
+	}
+	return array('resultado'=>false,'error'=>'Identificador para categoria incorrecto');
+}
+
+function getCategoria($idCategoria)
+{
+	global $tbl_categoria;
+	return doQueryById($tbl_categoria,array('id'=>$idCategoria));
 }
 ?>

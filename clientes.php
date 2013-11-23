@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="es">
     <head>
@@ -9,21 +8,16 @@
         <link rel="stylesheet" href="css/bootstrap-theme.css">
         <link rel="stylesheet" href="css/papeleria.css">
 
-        <title>Gestión de usuarios</title>
+        <title>Gestión de Clientes</title>
 
-        <script id="lista-usuarios-tmpl" type="text/template">
+        <script id="lista-cliente-tmpl" type="text/template">
             <div class="list-group">
-            {{#usuarios}}
-                <a id="item-link-{{id}}" href="#" class="list-group-item" onclick="mostrarUsuario('{{id}}')">{{nombre}} {{paterno}}</a>
-            {{/usuarios}}
+            {{#clientes}}
+                <a id="item-link-{{id}}" href="#" class="list-group-item" onclick="mostrarCliente('{{id}}')">{{nombre}}</a>
+            {{/clientes}}
             </div>
         </script>
 
-        <script id="options-rol-tmpl" type="text/template">
-            {{#roles}}
-            <option value="{{id}}" label="{{nombre}}" />
-            {{/roles}}
-        </script>
     </head>
     <body>
         <!-- Empieza el encabezado -->
@@ -31,15 +25,15 @@
         <!-- Termina el encabezado -->
 
         <div class="container">
-            <h1>Gestión de usuarios</h1>
+            <h1>Gestión de Clietes</h1>
             <!-- Nuevo/Editar usuario -->
             <div class="row">
                 <div class="col-md-3">
                     <div class="panel panel-default" >
                         <div class="panel-heading">
-                            <button class="btn btn-default" type="button" onclick="refrescarUsuarios()"><span class="glyphicon glyphicon-refresh"></span></button> Lista de usuarios
+                            <button class="btn btn-default" type="button" onclick="refrescarCliente()"><span class="glyphicon glyphicon-refresh"></span></button> Lista de Clientes
                         </div>
-                        <div id="lista-usuarios" style="height: 400px; overflow: auto;">
+                        <div id="lista-cliente" style="height: 400px; overflow: auto;">
                         </div>
                     </div>
                 </div>
@@ -48,15 +42,15 @@
                         <div class="panel-heading">
                             <div class="btn-group">
                                 <button id="boton-recargar" class="btn btn-default" type="button" 
-                                    onclick="recargarUsuario()"><span class="glyphicon glyphicon-refresh"></span> Recargar</button>
+                                    onclick="recargarCliente()"><span class="glyphicon glyphicon-refresh"></span> Recargar</button>
                                 <button class="btn btn-default" type="button" 
-                                    onclick="nuevoUsuario()"><span class="glyphicon glyphicon-plus-sign"></span> Nuevo</button>
+                                    onclick="nuevoCliente()"><span class="glyphicon glyphicon-plus-sign"></span> Nuevo</button>
                                 <button class="btn btn-default" type="button"
-                                    onclick="borrarUsuario()"><span class="glyphicon glyphicon-minus-sign"></span> Eliminar</button>
+                                    onclick="borrarCliente()"><span class="glyphicon glyphicon-minus-sign"></span> Eliminar</button>
                             </div>
                             <div class="btn-group pull-right">
                                 <button class="btn btn-default" type="button" 
-                                    onclick="guardarUsuario()"><span class="glyphicon glyphicon-floppy-disk"></span> Guardar</button>
+                                    onclick="guardarCliente()"><span class="glyphicon glyphicon-floppy-disk"></span> Guardar</button>
                                 <button class="btn btn-default" type="button"
                                     onclick="cancelarAccion()"><span class="glyphicon glyphicon-ban-circle"></span> Cancelar</button>
                             </div>
@@ -64,10 +58,17 @@
 
                         <!-- Comienza el formulario -->
                         <div class="panel-body" style="max-height: 320px; overflow: auto;">
-                            <form id="frm-usuario" class="form-horizontal" role="form">
+                            <form id="frm-producto" class="form-horizontal" role="form">
                                 <!-- Campos no visibles -->
                                 <input id="id" name="id" type="hidden" class="form-control" /> 
                                 <!-- Campos editables -->
+                                <div class="form-group">
+                                    <label for="rfc" class="col-lg-3 control-label">RFC</label>
+                                    <div class="col-lg-9">
+                                        <input id="rfc" name="rfc" type="text" class="form-control">
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <label for="nombre" class="col-lg-3 control-label">Nombre</label>
                                     <div class="col-lg-9">
@@ -75,35 +76,60 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="paterno" class="col-lg-3 control-label">Apellido paterno</label>
+                                    <label for="paterno" class="col-lg-3 control-label">Paterno</label>
                                     <div class="col-lg-9">
                                         <input id="paterno" name="paterno" type="text" class="form-control" required />
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="materno" class="col-lg-3 control-label">Apellido materno</label>
+                                    <label for="materno" class="col-lg-3 control-label">Materno</label>
                                     <div class="col-lg-9">
-                                        <input id="materno" name="materno" type="text" class="form-control">
+                                        <input id="materno" name="materno" type="text" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="nusuario" class="col-lg-3 control-label">Usuario</label>
+                                    <label for="proveedor" class="col-lg-3 control-label">Tipo</label>
                                     <div class="col-lg-9">
-                                        <input id="nusuario" name="nusuario" type="text" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="contrasena" class="col-lg-3 control-label">Contraseña</label>
-                                    <div class="col-lg-9">
-                                        <input id="contrasena" name="contrasena" type="password" class="form-control">
-
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="rol" class="col-lg-3 control-label">Rol</label>
-                                    <div class="col-lg-9">
-                                        <select id="rol" name="rol" class="form-control">
+                                        <select id="proveedor" name="proveedor" class="form-control">
+                                            <option value="1">proveedor</option>
+                                            <option Value="2">cliente</option>
                                         </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="calle" class="col-lg-3 control-label">Calle</label>
+                                    <div class="col-lg-9">
+                                        <input id="calle" name="calle" type="text" class="form-control" required >
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="interior" class="col-lg-3 control-label">Interior</label>
+                                    <div class="col-lg-9">
+                                        <input id="interior" name="interior" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exterior" class="col-lg-3 control-label">Exterior</label>
+                                    <div class="col-lg-9">
+                                        <input id="exterior" name="exterior" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="colonia" class="col-lg-3 control-label">Colonia</label>
+                                    <div class="col-lg-9">
+                                        <input id="colonia" name="colonia" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ciudad" class="col-lg-3 control-label">Ciudad</label>
+                                    <div class="col-lg-9">
+                                        <input id="ciudad" name="ciudad" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="estado" class="col-lg-3 control-label">Estado</label>
+                                    <div class="col-lg-9">
+                                        <input id="estado" name="estado" type="text" class="form-control">
                                     </div>
                                 </div>
                             </form>
@@ -115,17 +141,7 @@
                 </div>
             </div>
             
-            
-           
-            <!-- Tabla de usuarios
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    Lista de usuarios
-                </div>
-                <div id="usuarios">
-                </div>
-            </div>
-            -->
+
         </div>
         <!-- Empieza el pie -->
         <?php include 'footer.php' ?>
@@ -139,13 +155,13 @@
         <script type="text/javascript">
             $(document).ready(function() {
                 // Actualizar la lista de usuarios
-                refrescarUsuarios();
+                refrescarCliente();
 
                 // Cargar roles
-                $.getJSON('rol_ctrl.php',
+                $.getJSON('cliente_ctrl.php',
                     {accion: 'lista'},
                     function(json) {
-                        $('#rol').html(Mustache.to_html($('#options-rol-tmpl').html(), json));
+                        $('#cliente').html(Mustache.to_html($('#options-cliente-tmpl').html(), json));
                     });
             });
 
@@ -153,94 +169,102 @@
             var gblAccion = 'guardar';
             var selId = null;
 
-            function guardarUsuario() {
+            function guardarCliente () {
                 // Tiene que haber una accion definida
+                debugger;
                 if (gblAccion == null) {
                     return; // Do nothing
                 }
 
                 if (gblAccion == 'eliminar') {
-                    $.post('usuario_ctrl.php',
+                    $.post('cliente_ctrl.php',
                         {accion: 'eliminar', id: selId},
                         function(json) {
                             if (json.resultado) {
-                                refrescarUsuarios();
-                                uxSuccessAlert('Usuario eliminado correctamente');
+                                refrescarCliente();
+                                uxSuccessAlert('Cliente eliminado correctamente');
                             } else {
-                                uxErrorAlert('No se pudo eliminar el usuario. ' + json.error );
+                                uxErrorAlert('No se pudo eliminar el cliente' + json.error );
                             }
                         });
                 } else { // Guardar o actualizar un usuario
-                    var params = $('#frm-usuario').serializeArray();
+                    var params = $('#frm-producto').serializeArray();
                     params.push( {name: 'accion', value: gblAccion} );
 
-                    $.post('usuario_ctrl.php', 
+                    $.post('cliente_ctrl.php', 
                         params,
                         function(json) {
                             if ( json.resultado ) {
                                 clearForm();
-                                refrescarUsuarios();
-                                uxSuccessAlert('El usuario se ha guardado correctamente');
+                                refrescarCliente();
+                                uxSuccessAlert('El cliente se ha guardado correctamente');
                             } else {
                                 // Mostrar error
-                                uxErrorAlert('No se pudo guardar el usuario');
+                                uxErrorAlert('No se pudo guardar el producto');
                             }
                         });
                 }
             }
 
-            function refrescarUsuarios() {
-                $.getJSON('usuario_ctrl.php', 
+            function refrescarCliente() {
+                $.getJSON('Cliente_ctrl.php', 
                     {accion: 'lista'}, 
                     function(json){
                         // var tmpl = $('#usuarios-tmpl').html();
                         // var res = Mustache.to_html(tmpl, json);
                         // $('#usuarios').html(res);
 
-                        $('#lista-usuarios').html(Mustache.to_html($('#lista-usuarios-tmpl').html(), json));
-                        nuevoUsuario();
+                        $('#lista-cliente').html(Mustache.to_html($('#lista-cliente-tmpl').html(), json));
+                        nuevoCliente();
                     });
             }
 
-            function mostrarUsuario(idUsuario) {
-                $.getJSON('usuario_ctrl.php', 
-                    {accion: 'item', id: idUsuario},
+            function mostrarCliente(idCliente) {
+                $.getJSON('cliente_ctrl.php', 
+                    {accion: 'item', id: idCliente},
                     function(json){
                         if ( json.resultado ) {
+                            debugger;
                             $('#id').val(json.item.id);
+                            $('#rfc').val(json.item.rfc);
                             $('#nombre').val(json.item.nombre);
                             $('#paterno').val(json.item.paterno);
                             $('#materno').val(json.item.materno);
-                            $('#nusuario').val(json.item.usuario);
-                            $('#contrasena').val(json.item.contra);
-                            $('#rol').val(json.item.id_rol);
-                            $('#nombre').focus();
+                            $('#proveedor').val(json.item.proveedor);
+                            $('#calle').val(json.item.calle);
+                            $('#interior').val(json.item.interior);
+                            $('#exterior').val(json.item.exterior);
+                            $('#colonia').val(json.item.colonia);
+                            $('#ciudad').val(json.item.ciudad);
+                            $('#estado').val(json.item.estado);
+                            $('#rfc').focus();
+
 
                             // Hacer seleccion visible
                             $('a[class~=active]').removeClass('active');
-                            $('#item-link-' + idUsuario).addClass('active');
+                            $('#item-link-' + idCliente).addClass('active');
 
                             // Accion global: Guardar el item
                             gblAccion = 'guardar'; 
-                            selId = idUsuario; // Usuario en vista
+                            selId = idCliente; // Usuario en vista
                         } else {
                             // Mostrar error
                             gblAccion = null; // No hay accion posible
                             selId = null;
-                            uxErrorAlert('No se encontro el usuario');
+                            uxErrorAlert('No se encontro el cliente');
                         }
                     });
             }
 
-            function recargarUsuario() {
+            function recargarCliente() {
                 if (selId != null && selId.length != 0 ){
-                    mostrarUsuario(selId);
+                    mostrarCliente(selId);
                 } else {
                     console.log('No hay que recargar');
                 }
             }
 
-            function nuevoUsuario() {
+            function nuevoCliente() {
                 $('a[class~=active]').removeClass('active'); // Limpiar seleccion
                 
                 gblAccion = 'guardar'; // Configurar accion
@@ -249,7 +273,7 @@
                 enableForm(true); // Habilitar el formulario
             }
 
-            function borrarUsuario() {
+            function borrarCliente() {
                 if (selId != null) {
                     gblAccion = 'eliminar'; 
                     enableForm(false);
@@ -263,17 +287,17 @@
                 enableForm(true); // 
             }
 
-            function eliminarUsuario(idUsuario) {
+            function eliminarCliente(idCliente) {
                 // Agregarle al botón la funcionalidad de eliminar
                 $('#boton-eliminar').one('click', function(){
-                    $.post('usuario_ctrl.php',
-                        {accion: 'eliminar', id: idUsuario},
+                    $.post('cliente_ctrl.php',
+                        {accion: 'eliminar', id: idCliente},
                         function(json) {
                             if (json.resultado) {
-                                uxSuccessAlert('Usuario eliminado correctamente');
-                                refrescarUsuarios();
+                                uxSuccessAlert('Cliente eliminado correctamente');
+                                refrescarCliente();
                             } else {
-                                uxErrorAlert('No se pudo eliminar el usuario');
+                                uxErrorAlert('No se pudo eliminar el cliente');
                             }
                         });
                     $('#modal-eliminar').modal('hide');

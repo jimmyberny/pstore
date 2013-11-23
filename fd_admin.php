@@ -16,7 +16,7 @@ $tbl_usuario = array(
 $t_rol = array(
 		'name' => 'rol',
 		'fields' => array('id', 'nombre', 'tipo', 'inicio'),
-		'form' => array(),
+		'form' => array(), 
 		'ids' => array(0),
 		'order' => array(1)
 	);
@@ -27,6 +27,22 @@ $tbl_categoria = array('name' =>'categoria' ,
 		'ids' => array(0),
 		'order' => array(1)	
 	 );
+
+$tbl_producto=array('name'=>'producto' ,
+		'fields'=>array('id','id_categoria','nombre','codigo','descripcion','existencia','minimo','venta','compra','iva'),
+		'form' => array(
+			'id_categoria'=>'categoria'),
+		'ids' => array(0),
+		'order' => array(2,3)
+	);
+
+$tbl_cliente=array('name'=>'cliente',
+		'fields'=>array('id','rfc','nombre','paterno','materno','proveedor','calle','interior','exterior','colonia','ciudad','estado'),
+		'form'=>array(),
+		'ids'=>array(0),
+		'order'=>array(1)
+	);
+
 # sayHi( 'pollo' );
 
 # echo "Call method";
@@ -117,18 +133,16 @@ function getRol ( $id )
 function listarCategoria(){
 	global $tbl_categoria;
 	try {
-		$rs=doQuery(getSelect($tbl_categoria));
-		return array('categoria'=>$rs );
+		return array('categorias'=> doQuery(getSelect($tbl_categoria)));
 	} catch (PDOException $ex) {
-		show_app_error($ex)	;
-		die();
+		return array('categorias' => array(),'error'=> $ex->getMessage() );
 	}
 }
 
 function guardarCategoria($datos)
 {
 	global $tbl_categoria;
-	if(isset($datos['id']) and strlen($datos['id']!=0))
+	if(isset($datos['id']) and strlen($datos['id']) != 0 )
 	{
 		error_log('Mustt update object');
 		return doUpdate($tbl_categoria,$datos);
@@ -151,5 +165,85 @@ function getCategoria($idCategoria)
 {
 	global $tbl_categoria;
 	return doQueryById($tbl_categoria,array('id'=>$idCategoria));
+}
+function listarProducto(){
+	global $tbl_producto;
+	try {
+		$rs=doQuery(getSelect($tbl_producto));
+		return array('producto'=>$rs );
+	} catch (PDOException $ex) {
+		show_app_error($ex)	;
+		die();
+	}
+}
+
+function guardarProducto($datos)
+{
+	global $tbl_producto;
+	if(isset($datos['id']) and strlen($datos['id']) != 0 )
+	{
+		error_log('Mustt update object');
+		return doUpdate($tbl_producto,$datos);
+	}
+	error_log('Insert Object');
+	return doInsert($tbl_producto,$datos);
+}
+
+function borrarProducto($datos)
+{
+	global $tbl_producto;
+	if( isset($datos['id']) and strlen($datos['id']) != 0 )
+	{
+		return doDelete($tbl_producto,$datos);
+	}
+	return array('resultado'=>false,'error'=>'Identificador para producto incorrecto');
+}
+
+function getProducto($idProducto)
+{
+	global $tbl_producto;
+	return doQueryById($tbl_producto,array('id'=>$idProducto));
+}
+
+
+
+
+function listarCliente(){
+	global $tbl_cliente;
+	try {
+		$rs=doQuery(getSelect($tbl_cliente));
+		return array('clientes'=>$rs );
+	} catch (PDOException $ex) {
+		show_app_error($ex)	;
+		die();
+	}
+}
+
+function guardarCliente($datos)
+{
+	global $tbl_cliente;
+	if(isset($datos['id']) and strlen($datos['id']) != 0 )
+	{
+		error_log('Mustt update object');
+		return doUpdate($tbl_cliente,$datos);
+	}
+	error_log('Insert Object');
+	return doInsert($tbl_cliente,$datos);
+}
+
+function borrarCliente($datos)
+{
+	global $tbl_cliente;
+	if( isset($datos['id']) and strlen($datos['id']) != 0 )
+	{
+		return doDelete($tbl_cliente,$datos);
+	}
+	return array('resultado'=>false,'error'=>'Identificador para cliente incorrecto');
+}
+
+function getCliente($idCliente)
+{
+	global $tbl_cliente;
+	return doQueryById($tbl_cliente,array('id'=>$idCliente));
 }
 ?>

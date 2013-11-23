@@ -2,7 +2,7 @@
 <html lang="es">
 	<!-- Aqui esta el login -->
 	<head>
-		<meta charset="uft-8">
+		<meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- <link rel="shortcut icon" href=""> -->
         <link rel="stylesheet" href="css/bootstrap.css">

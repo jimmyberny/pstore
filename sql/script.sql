@@ -74,6 +74,15 @@ create table caja(
     constraint pk_caja primary key(id)
 ) engine = InnoDB;
 
+create table pago(
+    id varchar(40) not null,
+    id_ticket varchar(40) not null,
+    importe double not null,
+    recibido double not null,
+    constraint pk_pago primary key(id),
+    constraint fk_p_t_ticket foreign key(id_ticket) references ticket(id)
+) engine = InnoDB;
+
 create table ticket(
     id varchar(40) not null,
     id_caja varchar(40) not null,

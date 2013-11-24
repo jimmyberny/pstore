@@ -1,5 +1,5 @@
 <?php 
-require_once( 'admin.php' );
+require_once( 'admin.php' ); // Abre la sesion
 
 function match( $cad, $cad2 ) 
 {
@@ -14,15 +14,15 @@ $res = null;
 
 if ( isset( $accion ) )
 {
-	if ( match( 'vender', $accion) ) 
+	if ( match( 'vender', $accion ) ) 
 	{
 
 	}
 	else if ( match( 'listar', $accion ) )
 	{
-		// id_linea, orden, id_producto, nombre, cantidad, precio, impuesto
+		// id_linea, orden, id_producto, nombre, cantidad, precio, impuesto, total
 		$lineas = $_SESSION['lineas_ticket'];
-		$res['resultado'] = true;
+		$res['resultado'] = true; // Correcto
 		$res['lineas'] = $lineas;
 	}
 	//
@@ -32,5 +32,6 @@ if ( isset( $accion ) )
 }
 
 // Retornando el resultado
+header( 'Content-Type: json' );
 echo json_encode( $res );
 ?>

@@ -19,5 +19,5 @@ else if ( isItem() )
 {
     # error_log( 'Id a buscar: ' . getItemId() );
     echo json_encode( getProducto( getItemId() ) );
-} 
+}
 ?>

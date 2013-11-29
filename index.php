@@ -14,17 +14,46 @@
 	<body>
 		<div class="container">
 			<h1>Bienvenido</h1>
-			<form action="home.php">
+			<form id="frm-login">
 				<h2>Ingresar al sistema</h2>
-				<input type="text" class="form-control" placeholder="Usuario">
-				<input type="password" class="form-control" placeholder="Contraseña">
-				<button class="btn btn-primary btn-block" type="submit">Entrar</button>
+				<input id="accion" name="accion" type="hidden" value="login" />
+				<input id="usuario" name="usuario" type="text" class="form-control" placeholder="Usuario" />
+				<input id="contrasena" name="contrasena" type="password" class="form-control" placeholder="Contraseña" />
+				<button id="boton-login" class="btn btn-primary btn-block" type="button">Entrar</button>
+				<div id="mensajes" >
+				</div>
+				<button id="btn-close" class="btn" type="button" onclick="cerrarSesion()">Cerrar</button>
 			</form>
 		</div>
 
 		<!-- Empieza javascript -->
 		<script src="js/jquery-1.10.2.js"></script>
         <script src="js/bootstrap.js"></script>
+        <script src="js/mustache.js"></script>
+        <script src="js/util.js"></script>
+        <script type="text/javascript">
+        	$(document).ready(function() {
+	        	$('#boton-login').bind('click', function() {
+	        		var params = $('#frm-login').serializeArray();
+
+	        		$.post('login.php',
+	        			params,
+	        			function(json) {
+	        				if (json.resultado) {
+	        					document.location = 'home.php';
+	        				} else {
+	        					uxErrorAlert( json.mensaje );
+	        				}
+	        			});
+	        	});
+        	});
+
+        	function cerrarSesion() {
+        		$.post('login.php',
+        			{accion: 'logout'});
+        	}
+        </script>
+
 		<!-- Termina javascript -->
 	</body>
 </html>

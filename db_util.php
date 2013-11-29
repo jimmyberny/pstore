@@ -33,6 +33,15 @@ function doQuery( $sentence )
     }
 }
 
+function doQueryOne( $sentence ) {
+	$res = doQuery( $sentence );
+	if ( count( $res ) != 0 )
+	{
+		return $res[0];
+	}
+	return null;
+}
+
 function doQueryById( $table, $data )
 {
 	global $con;

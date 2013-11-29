@@ -1,3 +1,6 @@
+<?php 
+require_once( 'admin.php' );
+?>
 <!doctype html>
 <html lang="es">
     <head>
@@ -145,9 +148,9 @@
         <script type="text/javascript">
             $(document).ready(function() {
                 // Actualizar la lista de usuarios
-                refrescarProducto();
+                refrescarProductos();
 
-                // Cargar roles
+                // Cargar categorias
                 $.getJSON('categoria_ctrl.php',
                     {accion: 'lista'},
                     function(json) {
@@ -170,10 +173,10 @@
                         {accion: 'eliminar', id: selId},
                         function(json) {
                             if (json.resultado) {
-                                refrescarProducto();
+                                refrescarProductos();
                                 uxSuccessAlert('Producto eliminado correctamente');
                             } else {
-                                uxErrorAlert('No se pudo eliminar el Producto' + json.error );
+                                uxErrorAlert('No se pudo eliminar el producto. ' + json.error );
                             }
                         });
                 } else { // Guardar o actualizar un usuario
@@ -185,7 +188,7 @@
                         function(json) {
                             if ( json.resultado ) {
                                 clearForm();
-                                refrescarUsuarios();
+                                refrescarProductos();
                                 uxSuccessAlert('El producto se ha guardado correctamente');
                             } else {
                                 // Mostrar error
@@ -195,14 +198,10 @@
                 }
             }
 
-            function refrescarProducto() {
+            function refrescarProductos() {
                 $.getJSON('producto_ctrl.php', 
                     {accion: 'lista'}, 
-                    function(json){
-                        // var tmpl = $('#usuarios-tmpl').html();
-                        // var res = Mustache.to_html(tmpl, json);
-                        // $('#usuarios').html(res);
-
+                    function( json ){
                         $('#lista-producto').html(Mustache.to_html($('#lista-producto-tmpl').html(), json));
                         nuevoProducto();
                     });

@@ -244,6 +244,127 @@ function borrarCliente($datos)
 function getCliente($idCliente)
 {
 	global $tbl_cliente;
-	return doQueryById($tbl_cliente,array('id'=>$idCliente));
+	return doQueryById( $tbl_cliente, array('id'=>$idCliente) );
+}
+
+function login($usuario, $password)
+{
+	global $con;
+	try 
+	{
+		$ql = "select * from usuario where usuario = :usuario and contra = :contra";
+		$ps = $con->prepare($ql);
+		$ps->bindParam(':usuario', $usuario);
+		$ps->bindParam(':contra', $password);
+		$ps->execute();
+		$res = $ps->fetch( PDO::FETCH_ASSOC );
+
+		if ( is_bool( $res ) or ( is_array( $res ) and count( $res ) == 0 ) )
+		{ // is false or an empty array
+			$ans = array( 'resultado' => false, 'mensaje' => 'Usuario no encontrado');
+		}
+		else 
+		{
+			$ans = array( 'resultado' => true, 'usuario' => $res);
+		}
+	}
+	catch ( PDOException $ex )
+	{
+		$ans = array('resultado' => false, 'mensaje' => $ex->getMessage() );
+	}
+	return $ans;
+}
+
+function obtenerCaja()
+{
+	global $con;
+	$caja = null;
+	try {
+		$qc = 'select id, inicio, fin from caja where fin is null';
+		$ps = $con->prepare( $qc );
+		$ps->execute();
+		$caja = $ps->fetch( PDO::FETCH_ASSOC );
+		if ( is_bool( $caja ) ) // La caja no existe
+		{
+			//
+			$qci = 'insert into caja(id, inicio, fin) values(:id, now(), null)';
+			$psi = $con->prepare( $qci );
+			$id = uniqid('caja');
+			$psi->bindParam(':id', $id);
+			$ok = $psi->execute();
+			if ( $ok and ( $psi->rowCount() != 0 ) )
+			{
+				// Volver a buscar
+				$psa = $con->prepare( $qc );
+				$psa->execute();
+				$caja = $psa->fetch( PDO::FETCH_ASSOC );
+			}
+		}
+	}
+	catch ( PDOException $ex )
+	{
+		// Mal
+		die('No se encontro la caja');
+	}
+	return $caja;
+}
+
+function guardarTicket($ticket, $pago, $lineas)
+{
+	global $con;
+
+	try 
+	{
+		// Comienza la transaccion
+		$con->beginTransaction();
+
+		$qt = 'insert into ticket values(:id, :caja, :usr, :clt, :fecha)';
+		$pit = $con->prepare( $qt );
+		$id_ticket = uniqid( 'tic' );
+		$fecha = date('Y-m-d H:i:s');
+		$pit->bindParam( ':id', $id_ticket );
+		$pit->bindParam( ':caja', $ticket['id_caja'] );
+		$pit->bindParam( ':usr', $ticket['id_usuario'] );
+		$pit->bindParam( ':clt', $ticket['id_cliente'] );
+		$pit->bindParam( ':fecha', $fecha );
+		$pit->execute(); // Ticket insertado
+
+		$qp = 'insert into pago values(:id, :tic, :imp, :rec)';
+		$pip = $con->prepare( $qp );
+		$id_pago = uniqid( 'pag' );
+		$pip->bindParam( ':id', $id_pago );
+		$pip->bindParam( ':tic', $id_ticket );
+		$pip->bindParam( ':imp', $pago['importe'] );
+		$pip->bindParam( ':rec', $pago['recibido'] );
+		$pip->execute(); // Pago insertado
+
+		$qlt = 'insert into linea_ticket values(:id, :tic, :ord, :pdt, :cant, :pre, :imp)';
+
+		$ord = 0;
+		foreach ($lineas as $lin) 
+		{
+			$pil = $con->prepare($qlt);
+			// 
+			$pil->bindParam( ':id', uniqid('lin') );
+			$pil->bindParam( ':tic', $id_ticket );
+			$pil->bindParam( ':ord', $ord );
+			$pil->bindParam( ':pdt', $lin['id_producto'] );
+			$pil->bindParam( ':cant', $lin['cantidad'] );
+			$pil->bindParam( ':pre', $lin['precio'] );
+			$pil->bindParam( ':imp', $lin['impuesto'] );
+			$pil->execute(); 
+			$ord++;
+		}
+
+		// Termina la transaccion
+		$con->commit();
+		$res = array('resultado' => true, 'mensaje' => 'Venta guardada exitosamente.');
+	}
+	catch ( PDOException $ex )
+	{
+		$con->rollBack();
+		$res = array('resultado' => false, 'error' => $ex->getMessage());
+	}
+	return $res;
 }
 ?>

@@ -8,12 +8,12 @@
         <!-- <link rel="shortcut icon" href=""> -->
         <link rel="stylesheet" href="css/bootstrap.css">
         <link rel="stylesheet" href="css/bootstrap-theme.css">
-        <link rel="stylesheet" href="css/login.css">
+        <link rel="stylesheet" href="css/papeleria.css">
 
         <script id="item-busqueda-tmpl" type="text/template">
             <div class="list-group">
             {{#productos}}
-                <a id="item-link-{{id}}" href="#" class="list-group-item" onclick="agregarProducto('{{id}}')">{{nombre}}</a>
+                <a id="item-link-{{id}}" href="#" class="list-group-item" onclick="agregarProducto('{{codigo}}')">{{nombre}}</a>
             {{/productos}}
             </div>
         </script>
@@ -26,6 +26,7 @@
                         <th>Cantidad</th>
                         <th>Precio</th>
                         <th>Total</th>
+                        <th> </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,6 +35,9 @@
                         <td>{{cantidad}}</td>
                         <td>{{precio}}</td>
                         <td>{{total}}</td>
+                        <td style="width: 50px;"><button class="btn btn-default" type="button" onclick="agregarProducto('{{codigo}}')">
+                            <span class="glyphicon glyphicon-plus-sign"></span> 
+                        </button></td>
                     </tr>{{/lineas}}
                 </tbody>
             </table>
@@ -85,16 +89,59 @@
                             </button>
                             <strong>Ticket actual</strong>
                             <div class="btn-group pull-right">
-                                <button id="boton-vender" class="btn btn-default" type="button">
+                                <button id="boton-vender" class="btn btn-default" type="button" onclick="pagar()"> 
+                                    <!-- data-toggle="modal" data-target="#dialogo-pagar" >-->
                                     <span class="glyphicon glyphicon-ok"></span> Vender
                                 </button>
                             </div>
                         </div>
-                        <div id="tabla-lineas">
+                        <div id="tabla-lineas" class="formulario">
                         </div>
+                        <div class="panel-footer">
+                            <h4>Total: <strong id="vista-total"></strong></h4>
+                        </div>
+                    </div>
+                    <div id="mensajes">
                     </div>
                 </div>
                 <!-- Termina panel ticket -->
+                <!-- Empieza panel de dialogo -->
+                <div id="dialogo-pagar" class="modal fade">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <h4 class="modal-title">Total</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form id="frm-producto" class="form-horizontal" role="form">
+                                    <div class="form-group">
+                                        <label for="total" class="col-lg-3 control-label">Total: </label>
+                                        <div class="col-lg-9">
+                                            <input id="total" name="total" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="recibido" class="col-lg-3 control-label">Recibido: </label>
+                                        <div class="col-lg-9">
+                                            <input id="recibido" name="recibido" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cambio" class="col-lg-3 control-label">Cambio: </label>
+                                        <div class="col-lg-9">
+                                            <input id="cambio" name="cambio" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-primary" onclick="guardar()">Pagar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <!-- Termina contenido -->
@@ -110,17 +157,34 @@
 
         <script type="text/javascript">
             $(document).ready(function() {
-            });
+
+                // Mostrar el contenido del ticket. 
+                // El ticket es uno solo a lo largo de toda la aplicación
+                actualizarTicket();
+
+                // Bindear la modificacion del pago y cambio
+                $('#recibido').bind('keyup', function(){
+                        $('#cambio').val(this.value - $('#total').val());
+                    });
+            }); 
 
             function lanzarBusqueda() {
                 var params = $('#frm-busqueda').serializeArray();
                 $.post('busqueda_ctrl.php',
                     params,
                     function( json ) {
-                        if ( json.resultado && json.actualizar ) {
-                            $('#lista-resultados').html(Mustache.to_html($('#item-busqueda-tmpl').html(), json));
+                        if ( json.resultado ) { // Busqueda y renderizable
+                            if ( json.actualizar ) {
+                                $('#lista-resultados').html(Mustache.to_html($('#item-busqueda-tmpl').html(), json));
+                            } else {
+                                var $caja = $('#busqueda');
+                                $caja.val(function(){return this.defaultValue;});
+                                $caja.focus();
+                            }
+                            actualizarTicket();
                         } else {
-                            // Sucedio un error
+                            // Render mensajes
+                            uxErrorAlert(json.error);
                         }
                     });
             }
@@ -131,8 +195,51 @@
                     function(json) {
                         if (json.resultado) {
                             $('#tabla-lineas').html(Mustache.to_html($('#tabla-lineas-tmpl').html(), json));
+                            $('#vista-total').html(json.total);
                         } else{
                             alert(json.error);
+                        }
+                    });
+            }
+
+            function agregarProducto(codigo) {
+                $.post('busqueda_ctrl.php',
+                    {busqueda: codigo},
+                    function(json) {
+                        if (json.resultado) {
+                            actualizarTicket();
+                        } else {
+                            uxErrorAlert(json.error);
+                        }
+                    });
+            }
+
+            function pagar() {
+                $.post('venta_ctrl.php',
+                    {accion: 'vender'},
+                    function(json) {
+                        if (json.resultado) {
+                            $('#dialogo-pagar').modal();
+                            $('#total').val(json.total);
+                            $('#recibido').val(json.total);
+                            $('#cambio').val(0);
+                        }
+                    });
+            }
+
+            function guardar() {
+                $.post('venta_ctrl.php',
+                    {
+                        accion: 'guardar', 
+                        recibido: $('#recibido').val()
+                    },
+                    function(json) {
+                        if (json.resultado) {
+                            $('#dialogo-pagar').modal('hide'); // Ocultar el dialogo
+                            uxSuccessAlert(json.mensaje);
+                            actualizarTicket();
+                        } else {
+                            uxErrorAlert(json.error);
                         }
                     });
             }

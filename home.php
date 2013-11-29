@@ -1,3 +1,6 @@
+<?php 
+require_once( 'admin.php' );
+?>
 <!DOCTYPE html>
 <html lang="es">
     <head>

@@ -22,34 +22,57 @@ if ( isset($busqueda) )
 		if ( !$buscarPorNombre )
 		{
 			// Añadir el producto al ticket
-			if ( !isset( $_SESSION['lineas_ticket'] ) ) {
-				$_SESSION['lineas_ticket'] = array();
-			}
 			$precio = $producto['venta'];
 			$impuesto = $producto['iva'] / 100;
 			$precio_iva = $precio + ( $precio * $impuesto );
-			$_SESSION['lineas_ticket'][] = array('id_linea' => 0, 
-				'orden' => 0,
-				'id_producto' => $producto['id'],
-				'nombre' => $producto['nombre'],
-				'cantidad' => 1,
-				'precio' => $precio,
-				'impuesto' => $precio * $impuesto,
-				'total' => $precio_iva, );
+			// Sera un mapa donde la clave sea el id del producto
+			if ( array_key_exists( $producto['id'] , $_SESSION['mapa_ticket'] ) )
+			{
+				// Eso de las variables por refencia es una mamada
+				$fl = &$_SESSION['mapa_ticket'][ $producto['id'] ]; //['cantidad'] += 1;
+				$fl['cantidad'] += 1;
+				$fl['precio'] = $precio_iva;
+				$fl['total'] = $fl['cantidad'] * $fl['precio'];
+			}
+			else
+			{
+				$_SESSION['mapa_ticket'][ $producto['id'] ] = array('id_linea' => 0, 
+					'orden' => 0,
+					'id_producto' => $producto['id'],
+					'codigo' => $producto['codigo'],
+					'nombre' => $producto['nombre'],
+					'cantidad' => 1,
+					'precio' => $precio,
+					'impuesto' => $precio * $impuesto,
+					'total' => $precio_iva);
+			}
 			$res = array('resultado' => true, 'actualizar' => false, 'mensaje' => 'Se agrego un producto a la venta');
 		}
 	}
 	
 	if ( $buscarPorNombre )
 	{
-		$ps = $con->prepare('select * from producto where nombre like :codigo');
-		$valor = '%' . $busqueda . '%';
-		$ps->bindParam(':codigo', $valor);
-		$ps->execute();
-		$productos= $ps->fetchAll(PDO::FETCH_ASSOC);
-		// Hay que buscar por nombre y retornar el arreglo del productos
-		$res = array('resultado' => true, 'actualizar' => true, 
-			'productos' => $productos);
+		try 
+		{
+			$ps = $con->prepare('select * from producto where nombre like :codigo');
+			$valor = '%' . $busqueda . '%';
+			$ps->bindParam(':codigo', $valor);
+			$ps->execute();
+			$pdts = $ps->fetchAll( PDO::FETCH_ASSOC );
+			// Hay que buscar por nombre y retornar el arreglo del productos
+			if ( is_bool( $pdts ) or count( $pdts ) == 0 ) 
+			{
+				$res = array('resultado' => false, 'error' => 'No se encontró el producto' );
+			}
+			else
+			{
+				$res = array('resultado' => true, 'actualizar' => true, 'productos' => $pdts );
+			}
+		}
+		catch ( PDOException $ex )
+		{
+			$res = array('resultado' => false, 'error' => $ex->getMessage() );
+		}
 	}
 } else {
 	$res = array('resultado' => false, 'error' => 'Paramétro incorrecto');

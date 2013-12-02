@@ -15,8 +15,9 @@ function uxShowMsg(divId, templateId, _type, _title, _message) {
 
 // Mensaje genérico
 function uxGenericMsg(div, template, params) {
-	div.html(Mustache.to_html(template, params));
-	div.slideDown(1500).fadeOut(2500);
+	// div.append(Mustache.to_html(template, params));
+	$(Mustache.to_html(template, params)).prependTo(div).fadeOut(2500);
+	// div.slideDown(1500).fadeOut(2500);
 }
 
 // Mensaje básico

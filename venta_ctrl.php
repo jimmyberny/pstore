@@ -59,7 +59,7 @@ if ( isset( $accion ) )
 			'id_usuario' => $_SESSION['usuario']['id'],
 			'id_cliente' => null );
 		$pago = array('importe' => $total, 'recibido' => $_POST['recibido']);
-		
+
 		$res = guardarTicket($ticket, $pago, $lineas);
 		if ( $res['resultado'] )
 		{ // Se guardo correctamente

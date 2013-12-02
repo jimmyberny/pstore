@@ -1,7 +1,8 @@
 <?php 
+require_once( 'admin.php' );
 ?>
 <!doctype html>
-<html>
+<html lang="es">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -85,20 +86,29 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <button id="boton-actualizar" class="btn btn-default" type="button" onclick="actualizarTicket()">
-                                <span class="glyphicon glyphicon-refresh"> </span>
+                                <span class="glyphicon glyphicon-repeat"> </span>
                             </button>
                             <strong>Ticket actual</strong>
                             <div class="btn-group pull-right">
                                 <button id="boton-vender" class="btn btn-default" type="button" onclick="pagar()"> 
                                     <!-- data-toggle="modal" data-target="#dialogo-pagar" >-->
-                                    <span class="glyphicon glyphicon-ok"></span> Vender
+                                    <span class="glyphicon glyphicon-usd"></span> Vender
                                 </button>
                             </div>
                         </div>
                         <div id="tabla-lineas" class="formulario">
                         </div>
                         <div class="panel-footer">
-                            <h4>Total: <strong id="vista-total"></strong></h4>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <h4>Total: <strong id="vista-total"></strong></h4>
+                                </div>
+                                <div class="col-lg-4">
+                                    <!-- Enlace para imprimir el ultimo ticket -->
+                                    <!-- Si no se ha vendido nada, el enlace no hace nada DAAAH!! -->
+                                    <a id="link-imprimir" href="#" class="btn btn-default btn-block">Imprimir último ticket</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div id="mensajes">
@@ -145,7 +155,6 @@
             </div>
         </div>
         <!-- Termina contenido -->
-
         <!-- Empieza el pie -->
         <?php include 'footer.php' ?>
         <!-- Terminal el pie -->
@@ -166,7 +175,7 @@
                 $('#recibido').bind('keyup', function(){
                         $('#cambio').val(this.value - $('#total').val());
                     });
-            }); 
+            });
 
             function lanzarBusqueda() {
                 var params = $('#frm-busqueda').serializeArray();
@@ -235,6 +244,16 @@
                     },
                     function(json) {
                         if (json.resultado) {
+                            // Pedir el pdf correspondiente
+                            // var w = window.open('_blank', 'Nueva ventana'); 
+                            // w.location = 'ticket_ctrl.php?accion=ticket&ticket=' + json.ticket;
+
+                            // $.post('ticket_ctrl.php', 
+                                // {accion: 'ticket', ticket: json.ticket }); // Simple, sin callback
+                            var $link = $('#link-imprimir');
+                            $link.attr('href', 'ticket_ctrl.php?accion=ticket&ticket=' + json.ticket);
+
+                            // Actualizar la apariencia
                             $('#dialogo-pagar').modal('hide'); // Ocultar el dialogo
                             uxSuccessAlert(json.mensaje);
                             actualizarTicket();

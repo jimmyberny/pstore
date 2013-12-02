@@ -166,11 +166,12 @@ function getCategoria($idCategoria)
 	global $tbl_categoria;
 	return doQueryById($tbl_categoria,array('id'=>$idCategoria));
 }
+
 function listarProducto(){
 	global $tbl_producto;
 	try {
-		$rs=doQuery(getSelect($tbl_producto));
-		return array('producto'=>$rs );
+		$rs = doQuery( getSelect($tbl_producto) );
+		return array( 'producto' => $rs );
 	} catch (PDOException $ex) {
 		show_app_error($ex)	;
 		die();
@@ -205,10 +206,8 @@ function getProducto($idProducto)
 	return doQueryById($tbl_producto,array('id'=>$idProducto));
 }
 
-
-
-
-function listarCliente(){
+function listarCliente()
+{
 	global $tbl_cliente;
 	try {
 		$rs=doQuery(getSelect($tbl_cliente));
@@ -358,7 +357,7 @@ function guardarTicket($ticket, $pago, $lineas)
 
 		// Termina la transaccion
 		$con->commit();
-		$res = array('resultado' => true, 'mensaje' => 'Venta guardada exitosamente.');
+		$res = array('resultado' => true, 'mensaje' => 'Venta guardada exitosamente.', 'ticket' => $id_ticket );
 	}
 	catch ( PDOException $ex )
 	{
@@ -366,5 +365,167 @@ function guardarTicket($ticket, $pago, $lineas)
 		$res = array('resultado' => false, 'error' => $ex->getMessage());
 	}
 	return $res;
+}
+
+function listarCaja( $caja )
+{
+	global $con;
+	try
+	{
+		// Información de la caja
+		$qc = 'select id, inicio, fin from caja where id = :caja';
+		$psc = $con->prepare( $qc );
+		$psc->bindParam( ':caja', $caja );
+		$ok = $psc->execute(); // Must be ok,
+		$cc = $psc->fetch( PDO::FETCH_ASSOC );
+
+		// Total de caja
+		$qlc = 'select count(*) as ventas, sum(p.importe) as total from caja as c join ticket as t on c.id = t.id_caja join pago as p on t.id = p.id_ticket';
+		$qlc .= ' where c.id = :caja';
+
+		$ps = $con->prepare( $qlc );
+		$ps->bindParam( ':caja', $caja);
+		$ok = $ps->execute();
+		$total = $ps->fetch( PDO::FETCH_ASSOC );
+
+		// Formar la respuesta
+		$res = array( 'resultado' => true,
+				'inicio' => $cc['inicio'], // 1er query
+				'fin' => $cc['fin'], // 1er query
+				'ventas' => $total['ventas'], // 2da query
+				'total' => $total['total'] // 2da query 
+			);
+	}
+	catch ( PDOException $ex )
+	{
+		$res = array( 'resultado' => false, 'mensaje' => $ex->getMessage() );
+	}
+	return $res;
+}
+
+function cerrarCaja( $idCaja )
+{
+	// Falta corroborar que se cerrará una caja 
+	// que tiene ventas, por si se saltan la validación
+	// que se hizo en el front-end (debe haber ventas para que
+	// tenga sentido cerrar la caja)
+	global $con;
+	try
+	{
+		$con->beginTransaction(); // Transaccion empezada
+		// Cerrar la caja
+		$qc = 'update caja set fin = now() where id = :caja';
+		$ps = $con->prepare( $qc );
+		$ps->bindParam( ':caja', $idCaja );
+		$ok = $ps->execute();
+
+		// Insertar nueva caja
+		$nc = 'insert into caja(id, inicio, fin) values(:id, now(), null)';
+		$id = uniqid('caja');
+		$psi = $con->prepare( $nc );
+		$psi->bindParam(':id', $id);
+		$ok = $psi->execute();
+
+		// Info sobre la ultima caja
+		$qoc = 'select id, inicio, fin from caja where id = :id';
+		$psc = $con->prepare( $qoc );
+		$psc->bindParam( ':id', $idCaja );
+		$ok = $psc->execute();
+		$cajaCerrada = $psc->fetch( PDO::FETCH_ASSOC );
+
+		// Respuesta
+		$res = array('resultado' => true, 'caja' => $id, 'fin' => $cajaCerrada['fin'], 
+			'mensaje' => 'Caja cerrada exitosamente');
+		$con->commit(); // Termina transaccion
+	}
+	catch ( PDOException $ex )
+	{
+		$res = array( 'resultado' => false, 'error' => $ex->getMessage() );
+	}
+	return $res;
+}
+
+function reportarVentas( $inicio = null, $fin = null )
+{
+	global $con;
+	try
+	{
+		// Parsear fechas, deben existir siempre
+		$where = ' where ';
+		$lim_ini = false;
+		$lim_fin = false;
+		if ( !is_null( $inicio ) ) // Fecha inicial
+		{
+			$inicio = date_format( date_create( $inicio ), 'Y-m-d H:i:s' );
+			$where .= 't.fecha = :ini ';
+			$lim_ini = true;
+		} 
+		else {
+			$where .= ' 1 = 1 ';
+		}
+		if ( !is_null( $fin ) ) // Fecha final
+		{
+			$fin = date_format( date_create( $fin ), 'Y-m-d H:i:s' );
+			$where = ' and t.fecha = :fin ';
+			$lim_fin;
+		}
+		else
+		{
+			$sfin = ' and 1 = 1 ';
+		}
+
+		$qr = 'select t.fecha as fecha, p.importe as importe from ticket as t join pago as p on t.id = p.id_ticket ' . $where;
+		error_log( 'Reporte venta: ' . $qr );
+		$ps = $con->prepare( $qr );
+		if ( $lim_ini )
+			$ps->bindParam( ':ini', $inicio );
+		if ( $lim_fin )
+			$ps->bindParam( ':fin', $fin );
+		$ok = $ps->execute();
+		$rvs = $ps->fetchAll( PDO::FETCH_ASSOC );
+		return $rvs;
+	}
+	catch ( PDOException $ex )
+	{
+		// No se si hacer los errores recuperables o no... Es triste.
+		die('Bad, bad, bad');
+	}
+}
+
+function obtenerTicket( $idTicket )
+{
+	global $con;
+	try
+	{
+		$qt = 'select * from ticket where id = :id';
+		$pst = $con->prepare( $qt );
+		$pst->bindParam(':id', $idTicket );
+		$ok = $pst->execute();
+		$ticket = $pst->fetch( PDO::FETCH_ASSOC );
+
+		// Lineas
+		$ql = 'select p.nombre as producto, lt.cantidad as cantidad, lt.precio as precio, lt.cantidad * lt.precio as total, lt.impuesto as impuesto from linea_ticket as lt ';
+		$ql .= 'join producto as p on lt.id_producto = p.id ';
+		$ql .= 'where lt.id_ticket = :id order by lt.orden';
+
+		$psl = $con->prepare( $ql );
+		$psl->bindParam( ':id', $idTicket );
+		$ok = $psl->execute();
+		$lineas = $psl->fetchAll( PDO::FETCH_ASSOC );
+
+		// pago
+		$qp = 'select importe, recibido from pago where id_ticket = :id';
+		$psp = $con->prepare( $qp );
+		$psp->bindParam( ':id', $idTicket );
+		$ok = $psp->execute();
+		$pago = $psp->fetch( PDO::FETCH_ASSOC );
+
+		return array('ticket' => $ticket, 'lineas' => $lineas, 'pago' => $pago );
+	}
+	catch ( PDOException $ex )
+	{
+		return null;
+		// die('No se pudo encontrar el ticket');
+	}
 }
 ?>

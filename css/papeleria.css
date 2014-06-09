@@ -12,3 +12,62 @@ body {
 	max-height: 320px;
 	overflow: auto;
 }
+
+.progreso {
+	/*width: 100%;*/
+	border: 1px solid #DDD;
+	/*padding: 1px;*/
+	border-radius: 3px;
+}
+
+.img-barra {
+	background-color: #B4F5B4;
+	width: 0%;
+	height: 20px;
+	border-radius: 3px;
+}
+
+.img-avance {
+	position: absolute;
+	display: inline-block;
+	top: 3px;
+	left: 48%;
+}
+
+div#img-vista-previa {
+	background-color: #80FF80;
+	text-align: center;
+	border-radius: 5px;
+	padding: 5px;
+}
+
+.vista-previa {
+	max-width: 240px;
+}
+
+.frm-imagen {
+	background-color: #FFFF80;
+	border-radius: 5px;
+	border: 1px solid yellow;
+	margin: 10px;
+}
+
+.item-producto div {
+	display: inline-block;
+}
+
+.img-mini {
+	max-width: 128px;
+}
+
+.img-micro {
+	max-width: 32px;
+}
+
+.img-normal {
+	max-width: 480px;
+}
+
+#dlg-img-producto {
+	text-align: center;
+}

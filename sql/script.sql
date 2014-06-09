@@ -11,7 +11,7 @@ create table rol(
 ) engine = InnoDB;
 
 insert into rol(id, nombre, tipo, inicio) 
-    values ('random', 'Administrador', 'admin', 'home.php');
+    values ('admin', 'Administrador', 'admin', 'home.php');
 
 create table usuario (
     id varchar(40) not null,
@@ -26,7 +26,9 @@ create table usuario (
 ) engine = InnoDB;
 
 insert into usuario (id, nombre, paterno, materno, id_rol, usuario, contra)
-    values ('random', 'Administrador', 'paterno', 'materno', 'random', 'admin', 'admin');
+    values ('1', 'Administrador', 'paterno', 'materno', 'admin', 'admin', 'admin');
+insert into usuario (id, nombre, paterno, materno, id_rol, usuario, contra)
+    values ('2', 'Ivan', 'Moreno', 'Illescas', 'admin', 'ivan', 'ivan');
 
 create table categoria (
     id varchar(40) not null,
@@ -45,6 +47,7 @@ create table producto (
     venta double not null,
     compra double not null,
     iva double not null, -- guardar el decimal para ahorra calculo
+    imagen varchar(40) null,
     constraint pk_producto primary key(id),
     constraint fk_p_c_categoria foreign key(id_categoria) references categoria(id)
 ) engine = InnoDB;
@@ -74,15 +77,6 @@ create table caja(
     constraint pk_caja primary key(id)
 ) engine = InnoDB;
 
-create table pago(
-    id varchar(40) not null,
-    id_ticket varchar(40) not null,
-    importe double not null,
-    recibido double not null,
-    constraint pk_pago primary key(id),
-    constraint fk_p_t_ticket foreign key(id_ticket) references ticket(id)
-) engine = InnoDB;
-
 create table ticket(
     id varchar(40) not null,
     id_caja varchar(40) not null,
@@ -93,6 +87,15 @@ create table ticket(
     constraint fk_t_c_caja foreign key(id_caja) references caja(id),
     constraint fk_t_u_usuario foreign key(id_usuario) references usuario(id),
     constraint fk_t_c_cliente foreign key(id_cliente) references cliente(id)
+) engine = InnoDB;
+
+create table pago(
+    id varchar(40) not null,
+    id_ticket varchar(40) not null,
+    importe double not null,
+    recibido double not null,
+    constraint pk_pago primary key(id),
+    constraint fk_p_t_ticket foreign key(id_ticket) references ticket(id)
 ) engine = InnoDB;
 
 create table linea_ticket(

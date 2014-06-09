@@ -71,8 +71,12 @@ require_once( 'admin.php' );
                                     <label for="tipo" class="col-lg-3 control-label">Tipo</label>
                                     <div class="col-lg-9">
                                         <select id="tipo" name="tipo" class="form-control">
-                                            <option value="admin" label="Administrador" />
-                                            <option value="cajero" label="Cajero" />
+                                            <option value="admin" label="Administrador" >
+                                                Administrador
+                                            </option>
+                                            <option value="cajero" label="Cajero" >
+                                                Cajero
+                                            </option>
                                         </select>
                                     </div>
                                 </div>
@@ -80,8 +84,12 @@ require_once( 'admin.php' );
                                     <label for="inicio" class="col-lg-3 control-label">Página de inicio</label>
                                     <div class="col-lg-9">
                                         <select id="inicio" name="inicio" class="form-control">
-                                            <option value="home.php" label="home.php" />
-                                            <option value="venta.php" label="venta.php" />
+                                            <option value="home.php" label="home.php" >
+                                                Bienvenida
+                                            </option>
+                                            <option value="venta.php" label="venta.php" >
+                                                Ventas
+                                            </option>
                                         </select>
                                     </div>
                                 </div>

@@ -14,7 +14,16 @@ require_once( 'admin.php' );
         <script id="item-busqueda-tmpl" type="text/template">
             <div class="list-group">
             {{#productos}}
-                <a id="item-link-{{id}}" href="#" class="list-group-item" onclick="agregarProducto('{{codigo}}')">{{nombre}}</a>
+                <a id="item-link-{{id}}" href="#" class="list-group-item" onclick="agregarProducto('{{codigo}}')">
+                    <div class="item-producto">
+                        <div class="img-mini">
+                            <img src="productos/{{imagen}}" class="img-mini" />
+                        </div>
+                        <div>
+                            {{nombre}}
+                        </div>
+                    </div>
+                </a>
             {{/productos}}
             </div>
         </script>
@@ -23,6 +32,7 @@ require_once( 'admin.php' );
             <table class="table">
                 <thead>
                     <tr>
+                        <th> </th>
                         <th>Producto</th>
                         <th>Cantidad</th>
                         <th>Precio</th>
@@ -32,6 +42,7 @@ require_once( 'admin.php' );
                 </thead>
                 <tbody>
                     {{#lineas}}<tr>
+                        <td><img src="productos/{{imagen}}" class="img-micro" onclick="mostrarImg('{{nombre}}','{{imagen}}');" /></td>
                         <td>{{nombre}}</td>
                         <td>{{cantidad}}</td>
                         <td>{{precio}}</td>
@@ -114,6 +125,19 @@ require_once( 'admin.php' );
                     <div id="mensajes">
                     </div>
                 </div>
+                <!-- Dialogo para la imagen -->
+                <div id="dialogo-imagen" class="modal fade">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <h4 id="dlg-nombre-producto" class="modal-title"></h4>
+                            </div>
+                            <div id="dlg-img-producto" class="modal-body">
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <!-- Termina panel ticket -->
                 <!-- Empieza panel de dialogo -->
                 <div id="dialogo-pagar" class="modal fade">
@@ -176,6 +200,14 @@ require_once( 'admin.php' );
                         $('#cambio').val(this.value - $('#total').val());
                     });
             });
+
+            function mostrarImg(name, img) {
+                // Nombre
+                $('#dlg-nombre-producto').html(name);
+                // Imagen
+                $('#dlg-img-producto').html('<img src="productos/' + img + '" class="img-normal" />');
+                $('#dialogo-imagen').modal();
+            }
 
             function lanzarBusqueda() {
                 var params = $('#frm-busqueda').serializeArray();

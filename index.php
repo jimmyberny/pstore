@@ -40,7 +40,7 @@
 	        			params,
 	        			function(json) {
 	        				if (json.resultado) {
-	        					document.location = 'home.php';
+	        					document.location = json.usuario.rol.inicio;
 	        				} else {
 	        					uxErrorAlert( json.mensaje );
 	        				}

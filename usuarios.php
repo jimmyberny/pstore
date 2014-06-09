@@ -23,7 +23,9 @@ require_once( 'admin.php' );
 
         <script id="options-rol-tmpl" type="text/template">
             {{#roles}}
-            <option value="{{id}}" label="{{nombre}}" />
+            <option value="{{id}}" label="{{nombre}}" >
+                {{nombre}}
+            </option>
             {{/roles}}
         </script>
     </head>

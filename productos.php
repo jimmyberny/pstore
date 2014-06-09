@@ -23,7 +23,9 @@ require_once( 'admin.php' );
 
         <script id="options-categoria-tmpl" type="text/template">
             {{#categorias}}
-            <option value="{{id}}" label="{{nombre}}" />
+            <option value="{{id}}" label="{{nombre}}" >
+                {{nombre}}
+            </option>
             {{/categorias}}
         </script>
     </head>
@@ -125,6 +127,39 @@ require_once( 'admin.php' );
                                         <input id="iva" name="iva" type="text" class="form-control">
                                     </div>
                                 </div>
+                                <div class="form-group" >
+                                    <input id="imagen" name="imagen" type="hidden" value="" />
+                                    
+                                    <label class="col-lg-3 control-label">Imágen</label>
+                                    <div class="col-lg-9">
+                                        <div id="img-vista-previa">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            <form id="frm-imagen" class="frm-imagen form-horizontal" role="form"
+                                action="subir_archivo.php" method="post" enctype="multipart/form-data">
+                                <!-- enctype="multipart" method="post" action="subir_imagen.php" -->
+                                <div class="form-group">
+                                    <label for="imagen" class="col-lg-3 control-label">Subir archivo</label>
+                                    <div class="col-lg-7">
+                                        <input id="imagen" name="imagen" type="file" class="form-control" />
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <input type="submit" value="Subir" class="btn btn-default" />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-9 col-lg-offset-3">
+                                        <div class="progreso ">
+                                            <div class="img-barra"></div>
+                                            <div class="img-avance">0%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="img-estado col-lg-9 col-lg-offset-3"></div>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -141,6 +176,7 @@ require_once( 'admin.php' );
         <!-- Terminal el pie -->
         <!-- Empieza javascript -->
         <script src="js/jquery-1.10.2.js"></script>
+        <script src="js/jquery.form.js"></script>
         <script src="js/bootstrap.js"></script>
         <script src="js/mustache.js"></script>
         <script src="js/util.js"></script>
@@ -156,6 +192,42 @@ require_once( 'admin.php' );
                     function(json) {
                         $('#categoria').html(Mustache.to_html($('#options-categoria-tmpl').html(), json));
                     });
+
+                var barra = $('.img-barra');
+                var avance = $('.img-avance');
+                var estado = $('.img-estado');
+
+                $('#frm-imagen').ajaxForm({
+                    dataType: 'json',
+                    beforeSend: function() {
+                        estado.empty();
+                        barra.width('0%');
+                        avance.html('0%');
+                    },
+                    uploadProgress: function(event, pos, total, complete) {
+                        var val = complete + '%';
+                        barra.width(val);
+                        avance.width(val);
+                    },
+                    success: function(data) {
+                        barra.width('100%');
+                        avance.html('100%');
+                    },
+                    complete: function(data) {
+                        var json = data.responseJSON;
+
+                        estado.html(json.mensaje);
+                        if (json.error) {
+                            barra.css('background-color', '#FF8080');
+                            avance.html('Error');
+                        } else {
+                            barra.css('background-color', '#80FF80');
+                            $('#img-vista-previa').html('<img src="' + json.archivo +'" class="vista-previa" />');
+                            $('#imagen').attr('value', json.valor);
+                        }
+                    }
+                });
+
             });
 
             // Accion de la pantalla, ninguna por defecto
@@ -222,6 +294,15 @@ require_once( 'admin.php' );
                             $('#venta').val(json.item.venta);
                             $('#compra').val(json.item.compra);
                             $('#iva').val(json.item.iva);
+
+                            // Trabajar con la imagen
+                            var img = json.item.imagen;
+                            if (img != null && img.length != 0) {
+                                $('#img-vista-previa').html('<img src="productos/' + img +'" class="vista-previa" />');
+                                $('.img-barra').css('background-color', '#000000');
+                            } else {
+                                $('#img-vista-previa').html('Sin imagen');
+                            }
                             $('#nombre').focus();
 
                             // Hacer seleccion visible
@@ -312,6 +393,7 @@ require_once( 'admin.php' );
                         });
                 }
             }
+
             //--> Terminan funciones de utilería <--//
         </script>
     </body>

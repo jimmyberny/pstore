@@ -13,7 +13,7 @@ if ( isset($busqueda) )
 	$buscarPorNombre = strlen( $busqueda ) == 0; // No tiene sentido buscar por una cadena vacia
 	if ( !$buscarPorNombre ) 
 	{
-		$ps = $con->prepare('select id, id_categoria, nombre, codigo, descripcion, existencia, minimo, venta, compra, iva from producto where codigo = :codigo');
+		$ps = $con->prepare('select id, id_categoria, nombre, codigo, descripcion, existencia, minimo, venta, compra, iva, imagen from producto where codigo = :codigo');
 		$ps->bindParam(':codigo', $busqueda);
 		$ps->execute();
 		$producto = $ps->fetch(PDO::FETCH_ASSOC);
@@ -44,7 +44,8 @@ if ( isset($busqueda) )
 					'cantidad' => 1,
 					'precio' => $precio,
 					'impuesto' => $precio * $impuesto,
-					'total' => $precio_iva);
+					'total' => $precio_iva,
+					'imagen' => $producto['imagen']);
 			}
 			$res = array('resultado' => true, 'actualizar' => false, 'mensaje' => 'Se agrego un producto a la venta');
 		}

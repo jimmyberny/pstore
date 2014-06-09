@@ -28,15 +28,15 @@ $tbl_categoria = array('name' =>'categoria' ,
 		'order' => array(1)	
 	 );
 
-$tbl_producto=array('name'=>'producto' ,
-		'fields'=>array('id','id_categoria','nombre','codigo','descripcion','existencia','minimo','venta','compra','iva'),
+$tbl_producto = array('name'=>'producto' ,
+		'fields'=>array('id','id_categoria','nombre','codigo','descripcion','existencia','minimo','venta','compra','iva', 'imagen'),
 		'form' => array(
 			'id_categoria'=>'categoria'),
 		'ids' => array(0),
 		'order' => array(2,3)
 	);
 
-$tbl_cliente=array('name'=>'cliente',
+$tbl_cliente = array('name'=>'cliente',
 		'fields'=>array('id','rfc','nombre','paterno','materno','proveedor','calle','interior','exterior','colonia','ciudad','estado'),
 		'form'=>array(),
 		'ids'=>array(0),
@@ -264,6 +264,12 @@ function login($usuario, $password)
 		}
 		else 
 		{
+			$qr = "select * from rol where id = :id";
+			$psr = $con->prepare( $qr );
+			$psr->bindParam(':id', $res['id_rol']);
+			$psr->execute();
+			$rol = $psr->fetch( PDO::FETCH_ASSOC );
+			$res['rol'] = $rol; // Añadiendo el rol
 			$ans = array( 'resultado' => true, 'usuario' => $res);
 		}
 	}
@@ -338,12 +344,14 @@ function guardarTicket($ticket, $pago, $lineas)
 		$pip->execute(); // Pago insertado
 
 		$qlt = 'insert into linea_ticket values(:id, :tic, :ord, :pdt, :cant, :pre, :imp)';
+		$pil = $con->prepare($qlt);
+
+		$qup = 'update producto set existencia = existencia - :venta';
+		$ps_up = $con->prepare( $qup );
 
 		$ord = 0;
 		foreach ($lineas as $lin) 
 		{
-			$pil = $con->prepare($qlt);
-			// 
 			$pil->bindParam( ':id', uniqid('lin') );
 			$pil->bindParam( ':tic', $id_ticket );
 			$pil->bindParam( ':ord', $ord );
@@ -352,6 +360,10 @@ function guardarTicket($ticket, $pago, $lineas)
 			$pil->bindParam( ':pre', $lin['precio'] );
 			$pil->bindParam( ':imp', $lin['impuesto'] );
 			$pil->execute(); 
+
+			// Disminuir el inventario
+			$ps_up->bindParam( ':venta', $lin[ 'cantidad' ] );
+			$ps_up->execute();
 			$ord++;
 		}
 
